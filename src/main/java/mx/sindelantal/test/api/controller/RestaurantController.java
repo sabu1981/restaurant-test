@@ -28,6 +28,7 @@ public class RestaurantController {
     
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public JsonResponse list() {
+    	
         JsonResponse result = new JsonResponse();
 
         List<Restaurant> restaurants = restaurantService.listRestaurants();
@@ -44,7 +45,6 @@ public class RestaurantController {
 
     @PostMapping("/search")
     public JsonResponse search(@RequestBody RestaurantFilter restaurantFilter) {
-
         JsonResponse result = new JsonResponse();
 
         List<Restaurant> restaurants = restaurantService.searchRestaurants(restaurantFilter);
@@ -56,7 +56,6 @@ public class RestaurantController {
         result.setBinaryStatus("success");
         result.setStatus(HttpStatus.OK);
         result.setResult(restaurants);
-
         return result;
 
     }
@@ -73,6 +72,23 @@ public class RestaurantController {
 
         return result;
 
+    }
+    
+    @RequestMapping(value = "/thirdExercise", method = RequestMethod.GET)
+    public JsonResponse thirdExercise() {
+    	
+        JsonResponse result = new JsonResponse();
+        
+        List<Restaurant> restaurants = restaurantService.listRestaurants3rdExercise();
+        if (restaurants.isEmpty()) {
+            result.setMessage("No restaurants found!");
+        } else {
+            result.setMessage("List of restaurants");
+        }
+        result.setBinaryStatus("success");
+        result.setStatus(HttpStatus.OK);
+        result.setResult(restaurants);
+        return result;
     }
 
 }
