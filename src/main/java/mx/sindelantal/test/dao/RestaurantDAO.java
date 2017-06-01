@@ -59,4 +59,10 @@ public interface RestaurantDAO {
    public void update(Restaurant restaurant);
    
    public Restaurant findByName(String name) throws EmptyResultDataAccessException;
+   
+   /** 
+    * 3rd Exercise
+    * 
+    */
+   public List<Restaurant> searchRestaurants3erExercise();
 }
