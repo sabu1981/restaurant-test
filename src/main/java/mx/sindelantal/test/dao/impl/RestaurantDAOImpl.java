@@ -1,6 +1,5 @@
 package mx.sindelantal.test.dao.impl;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +53,8 @@ public class RestaurantDAOImpl extends BaseDAO implements RestaurantDAO{
                 + " from  restaurant r"
                 + " left join delivery_order o on o.restaurant_id = r.id"
                 + " left join review_order ro on ro.order_id = o.id where 1=1"
-                + " group by r.id";
+                + " group by r.id"
+                + " order by rating desc";
         List <Restaurant> restaurants = new NamedParameterJdbcTemplate(jdbcTemplate).query(SQL, new RestaurantMapper());
         return restaurants;
     }
@@ -67,11 +67,14 @@ public class RestaurantDAOImpl extends BaseDAO implements RestaurantDAO{
     
     public List<Restaurant> searchRestaurants(RestaurantFilter restaurantFilter){
         Map<String, Object> params = new HashMap<String, Object>();
-        String SQL = "select * from restaurant where 1=1 ";
-        if(restaurantFilter.getNameLike() != null && !restaurantFilter.getNameLike().isEmpty()){
-            SQL+=" and name like :name ";
+        String SQL = "select r.id, r.name, r.open_since, sum(ro.rating)/count(ro.id) as rating"
+                + " from  restaurant r"
+                + " left join delivery_order o on o.restaurant_id = r.id"
+                + " left join review_order ro on ro.order_id = o.id"
+                + " where name like :name "
+                + " group by r.id"
+                + " order by rating desc";
             params.put("name", "%"+restaurantFilter.getNameLike()+"%");
-        }
         List <Restaurant> restaurants = new NamedParameterJdbcTemplate(jdbcTemplate).query(SQL,
             params,
             new RestaurantMapper());
@@ -103,4 +106,25 @@ public class RestaurantDAOImpl extends BaseDAO implements RestaurantDAO{
             params, new RestaurantMapper());
         return restaurant;
     }
+
+	@Override
+	public List<Restaurant> searchRestaurants3erExercise() {
+		String SQL = " select r.id, r.name, r.open_since, sum(ro.rating)/count(ro.id) as rating,"
+                + " IFNULL(("
+                + " select count(*) as cancelados"
+                + " from delivery_order doo"
+                + " left join restaurant rest on rest.id = doo.restaurant_id"
+                + " where doo.order_status = 'cancelled'"
+                + " and r.id = rest.id"
+                + " group by doo.restaurant_id"
+                + " ),0) as totalCancelled"
+                + " from  restaurant r"
+                + " left join delivery_order o on o.restaurant_id = r.id"
+                + " left join review_order ro on ro.order_id = o.id "
+                + " group by r.id"
+                + " order by totalCancelled, rating desc";
+                
+        List <Restaurant> restaurants = new NamedParameterJdbcTemplate(jdbcTemplate).query(SQL, new RestaurantMapper());
+        return restaurants;
+	}
 }
