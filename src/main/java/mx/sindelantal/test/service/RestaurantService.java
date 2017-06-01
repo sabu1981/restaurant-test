@@ -42,4 +42,8 @@ public class RestaurantService {
     		return null;
     	}
     }
+    
+    public List<Restaurant>listRestaurants3rdExercise(){
+        return restaurantDAO.searchRestaurants3erExercise();
+    }
 }
